@@ -1,8 +1,6 @@
 package com.techeer.abandoneddog.pet_info.controller;
 
 import com.techeer.abandoneddog.pet_info.dto.PetInfoRequestDto;
-import com.techeer.abandoneddog.pet_info.dto.PetInfoResponseDto;
-import com.techeer.abandoneddog.pet_info.entity.PetInfo;
 import com.techeer.abandoneddog.pet_info.repository.PetInfoRepository;
 import com.techeer.abandoneddog.pet_info.service.PetInfoService;
 import lombok.RequiredArgsConstructor;

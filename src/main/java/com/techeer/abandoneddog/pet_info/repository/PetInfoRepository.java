@@ -1,6 +1,6 @@
-package com.techeer.abandoneddog.animal.repository;
+package com.techeer.abandoneddog.pet_info.repository;
 
-import com.techeer.abandoneddog.animal.entity.PetInfo;
+import com.techeer.abandoneddog.pet_info.entity.PetInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,9 +1,7 @@
-package com.techeer.abandoneddog.animal.Controller;
+package com.techeer.abandoneddog.pet_info.controller;
 
-import com.techeer.abandoneddog.animal.Dto.PetInfoRequestDto;
-import com.techeer.abandoneddog.animal.service.PetInfoService;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import com.techeer.abandoneddog.pet_info.dto.PetInfoRequestDto;
+import com.techeer.abandoneddog.pet_info.service.PetInfoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

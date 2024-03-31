@@ -1,7 +1,7 @@
-package com.techeer.abandoneddog.animal.entity;
+package com.techeer.abandoneddog.pet_info.entity;
 
 
-import com.techeer.abandoneddog.animal.Dto.PetInfoRequestDto;
+import com.techeer.abandoneddog.pet_info.dto.PetInfoRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

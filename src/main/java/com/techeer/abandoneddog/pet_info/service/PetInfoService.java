@@ -1,8 +1,8 @@
-package com.techeer.abandoneddog.animal.service;
+package com.techeer.abandoneddog.pet_info.service;
 
-import com.techeer.abandoneddog.animal.Dto.PetInfoRequestDto;
-import com.techeer.abandoneddog.animal.entity.PetInfo;
-import com.techeer.abandoneddog.animal.repository.PetInfoRepository;
+import com.techeer.abandoneddog.pet_info.dto.PetInfoRequestDto;
+import com.techeer.abandoneddog.pet_info.entity.PetInfo;
+import com.techeer.abandoneddog.pet_info.repository.PetInfoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

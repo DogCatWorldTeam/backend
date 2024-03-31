@@ -1,8 +1,7 @@
-package com.techeer.abandoneddog.animal.Dto;
+package com.techeer.abandoneddog.pet_info.dto;
 
-import com.techeer.abandoneddog.animal.entity.Gender;
-import com.techeer.abandoneddog.animal.entity.PetType;
-import jakarta.persistence.Column;
+import com.techeer.abandoneddog.pet_info.entity.Gender;
+import com.techeer.abandoneddog.pet_info.entity.PetType;
 
 import lombok.Getter;
 

@@ -1,11 +1,10 @@
-package com.techeer.abandoneddog.animal.Dto;
+package com.techeer.abandoneddog.pet_info.dto;
 
 
-import com.techeer.abandoneddog.animal.entity.Gender;
-import com.techeer.abandoneddog.animal.entity.PetType;
+import com.techeer.abandoneddog.pet_info.entity.Gender;
+import com.techeer.abandoneddog.pet_info.entity.PetType;
 import lombok.Builder;
 import lombok.Getter;
-import org.antlr.v4.runtime.misc.NotNull;
 
 @Getter
 @Builder

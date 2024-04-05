@@ -117,8 +117,11 @@ public class ChatService {
         Users receiver = usersRepository.findById(receiverId)
                 .orElseThrow(() -> new EntityNotFoundException("Receiver not found with id: " + receiverId));
 
-        Optional<ChatRoom> existingRoom = chatRoomRepository.findBySenderAndReceiver(sender, receiver);
-        if(existingRoom.isPresent()) {
+        // 같은 채팅방 확인 (송신자와 수신자 역할 포함)
+        boolean roomExists = chatRoomRepository.findBySenderAndReceiver(sender, receiver).isPresent() ||
+                chatRoomRepository.findByReceiverAndSender(sender, receiver).isPresent();
+
+        if(roomExists) {
             // 이미 존재하는 채팅방, 새로 생성되지 않음. 예외 던짐
             throw new IllegalStateException("Chat room already exists between sender and receiver");
         } else {

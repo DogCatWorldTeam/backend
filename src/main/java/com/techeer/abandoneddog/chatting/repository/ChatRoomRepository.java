@@ -7,5 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     Optional<ChatRoom> findBySenderAndReceiver(Users sender, Users receiver);
+    Optional<ChatRoom> findByReceiverAndSender(Users receiver, Users sender);
+
 
 }

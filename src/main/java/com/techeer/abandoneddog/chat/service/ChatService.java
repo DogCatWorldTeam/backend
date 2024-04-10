@@ -74,14 +74,30 @@ public class ChatService {
 
     @Transactional
     public void updateChatRoom(ChatLeaveRoomDto chatLeaveRoomDTO) {
-        messagingTemplate.convertAndSend("/topic/" + chatLeaveRoomDTO.getChatRoomId(), "상대방이 채팅방을 나갔습니다");
+        Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
+
+        String out="상대가 채팅을 나갔습니다";
+        messagingTemplate.convertAndSend("/topic/" + chatLeaveRoomDTO.getChatRoomId(), out);
+
         ChatRoom chatRoom = chatRoomRepository.findById(chatLeaveRoomDTO.getChatRoomId())
                 .orElseThrow(() -> new RuntimeException("ChatRoom not found"));
 
-        chatRoom = chatRoom.builder()
-                .userLeft(chatRoom.getUserLeft() == null ? chatLeaveRoomDTO.getUserId() : chatRoom.getUserLeft())
-                .isDeleted(chatRoom.getUserLeft() != null)
-                .build();
+        //Users user= userRepository.findById( chatLeaveRoomDTO.getUserId()).orElseThrow(() -> new UserNotFoundException());
+        log.info(String.valueOf(chatRoom.getId()));
+        //이미 userleft에 존재한다면 에러나도록
+        //해당 아이디가 receiver나 sender에 존재하는지 확인하기
+
+        if(chatRoom.getUserLeft() != null){
+            chatRoom.setIsDeleted(true);
+        }
+        else chatRoom.setUserLeft(chatLeaveRoomDTO.getUserId());
+
+//        chatRoom = chatRoom.builder()
+//                .userLeft(chatRoom.getUserLeft() == null ? chatLeaveRoomDTO.getUserId() : chatRoom.getUserLeft())
+//                .isDeleted(chatRoom.getUserLeft() != null)
+//                .build();
+
+
 
         chatRoomRepository.save(chatRoom);
     }

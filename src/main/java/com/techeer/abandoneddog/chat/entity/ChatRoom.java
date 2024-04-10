@@ -1,10 +1,7 @@
 package com.techeer.abandoneddog.chat.entity;
 import com.techeer.abandoneddog.users.entity.Users;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Setter
 @EntityListeners(AuditingEntityListener.class)
 public class ChatRoom{
 
@@ -46,4 +44,8 @@ public class ChatRoom{
         this.receiver=receiver;
         this.sender=sender;
     }
+    public ChatRoom(Boolean isDeleted, Long userLeft) {
+  this.isDeleted=isDeleted;
+  this.userLeft=userLeft;
+ }
 }

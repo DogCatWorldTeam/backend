@@ -1,19 +1,21 @@
 package com.techeer.abandoneddog.users.entity;
 
+import com.techeer.abandoneddog.chat.entity.ChatRoom;
 import com.techeer.abandoneddog.global.entity.BaseEntity;
 import com.techeer.abandoneddog.users.dto.UserRequestDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Builder
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE user SET deleted = true WHERE user_id = ?")
@@ -37,6 +39,12 @@ public class Users extends BaseEntity {
 
     @Column(name = "phone_num", nullable = false)
     private String phoneNum;
+
+    @OneToMany(mappedBy = "sender")
+    private List<ChatRoom> sentChatRooms = new ArrayList<>();
+
+    @OneToMany(mappedBy = "receiver")
+    private List<ChatRoom> receivedChatRooms = new ArrayList<>();
 
     public void update(UserRequestDto dto, PasswordEncoder passwordEncoder) {
         this.username = dto.getUsername();

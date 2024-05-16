@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 public class PetInfoRequestDto {
 
-    private int shelterId;
+//    private int shelterId;
     private String petName;
     private PetType petType;
     private String breed;

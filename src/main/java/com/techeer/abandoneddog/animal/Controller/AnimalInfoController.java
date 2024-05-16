@@ -1,5 +1,6 @@
 package com.techeer.abandoneddog.animal.Controller;
 
+import com.techeer.abandoneddog.animal.Dto.PetInfoCreateDto;
 import com.techeer.abandoneddog.animal.Dto.PetInfoRequestDto;
 import com.techeer.abandoneddog.animal.service.PetInfoService;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +21,14 @@ public class AnimalInfoController {
         this.petInfoService = petInfoService;
     }
 
-
+    @PostMapping("/pet_info/individual")
+    public ResponseEntity<?> createPetInfo(@RequestBody PetInfoCreateDto petInfoCreatedto) {
+        try {
+            return ResponseEntity.ok(petInfoService.createPetInfo(petInfoCreatedto));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("펫 정보 생성에 실패하였습니다.");
+        }
+    }
 
     @PostMapping("/pet_info")
     public ResponseEntity<?> posting(@RequestBody PetInfoRequestDto dto) {
@@ -40,6 +48,24 @@ public class AnimalInfoController {
 //        return ResponseEntity.ok( postservice.pageList(pageable));
 //
 //    }
+
+    @GetMapping("pet-info/public-pets")
+    public ResponseEntity<?> getPublicPets() {
+        try {
+            return ResponseEntity.ok(petInfoService.getPetInfoByPublicApiStatus(true));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to retrieve public pet information.");
+        }
+    }
+
+    @GetMapping("pet-info/private-pets")
+    public ResponseEntity<?> getPrivatePets() {
+        try {
+            return ResponseEntity.ok(petInfoService.getPetInfoByPublicApiStatus(false));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to retrieve private pet information.");
+        }
+    }
 
     @GetMapping("/pet_info/{id}")
     public ResponseEntity<?> getPost(@PathVariable Long id) {

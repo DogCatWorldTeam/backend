@@ -11,7 +11,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 @Builder
 public class PetInfoResponseDto {
 
-    private int shelterId;
+//    private int shelterId;
     private String petName;
     private PetType petType;
     private String breed;

@@ -1,13 +1,16 @@
 package com.techeer.abandoneddog.chatting.service;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techeer.abandoneddog.chatting.domain.ChatRoom;
 import com.techeer.abandoneddog.chatting.domain.Message;
 import com.techeer.abandoneddog.chatting.domain.MessageType;
 import com.techeer.abandoneddog.chatting.domain.UsersChatRoom;
+import com.techeer.abandoneddog.chatting.dto.ChatMessageDto;
 import com.techeer.abandoneddog.chatting.dto.ChatRoomResponseDto;
 import com.techeer.abandoneddog.chatting.dto.MessageResponseDto;
 import com.techeer.abandoneddog.chatting.dto.SimplifiedMessageDto;
+import com.techeer.abandoneddog.chatting.redis.RedisPublisher;
 import com.techeer.abandoneddog.chatting.repository.ChatRoomRepository;
 import com.techeer.abandoneddog.chatting.repository.MessageRepository;
 import com.techeer.abandoneddog.chatting.repository.UsersChatRoomRepository;
@@ -15,12 +18,16 @@ import com.techeer.abandoneddog.users.entity.Users;
 import com.techeer.abandoneddog.users.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +40,12 @@ public class ChatService {
     private final MessageRepository messageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final SimpMessageSendingOperations messagingTemplate;
+    private final RedisPublisher redisPublisher;
+    private final ObjectMapper objectMapper;
     private final UserRepository usersRepository;
     private final UsersChatRoomRepository usersChatRoomRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
+
 
     // 사용자 ID를 기반으로 활성 채팅방 목록을 조회
     @Transactional(readOnly = true)
@@ -104,7 +115,6 @@ public class ChatService {
                 saveAndSendMessage(chatRoom, sender, messageDto.getMessage(), MessageType.TALK, false);
             }
         } catch (IllegalStateException e) {
-            // 이미 존재하는 채팅방을 다시 만들려고 할 때의 예외 처리
             log.error("Chat room already exists: {}", e.getMessage(), e);
         }
     }
@@ -206,7 +216,6 @@ public class ChatService {
         saveAndSendMessage(chatRoom, sender, entranceMessage, MessageType.ENTER, false);
     }
 
-
     // 메시지 저장 및 전송
     private void saveAndSendMessage(ChatRoom chatRoom, Users sender, String messageContent, MessageType messageType, boolean includeUsername) {
         String finalMessageContent = includeUsername ? sender.getUsername() + " " + messageContent : messageContent;
@@ -217,16 +226,68 @@ public class ChatService {
                 .type(messageType)
                 .build();
         messageRepository.save(message);
+////        내장브로커 In-Memory 사용
+//        MessageResponseDto responseDto = new MessageResponseDto(
+//                message.getMessageId(),
+//                message.getSender().getId(),
+//                message.getMessage(),
+//                message.getType(),
+//                sender.getUsername(),
+//                message.getCreatedAt()
+//        );
+//        messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoom.getChatRoomId(), responseDto);
 
-        MessageResponseDto responseDto = new MessageResponseDto(
-                message.getMessageId(),
-                message.getSender().getId(),
-                message.getMessage(),
-                message.getType(),
-                sender.getUsername(),
-                message.getCreatedAt()
-        );
-        messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoom.getChatRoomId(), responseDto);
+        // Redis 사용
+        ChatMessageDto chatMessageDto = ChatMessageDto.builder()
+                .chatRoomId(chatRoom.getChatRoomId())
+                .senderId(sender.getId())
+                .content(finalMessageContent)
+                .type(messageType)
+                .build();
+
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(ChatMessageDto.class));
+        redisTemplate.opsForList().rightPush(chatMessageDto.getChatRoomId().toString(), chatMessageDto);
+        redisTemplate.expire(chatMessageDto.getChatRoomId().toString(), 1, TimeUnit.MINUTES);
+
+
+        ChannelTopic topic = new ChannelTopic(String.valueOf(chatRoom.getChatRoomId()));
+        redisPublisher.publish(topic, chatMessageDto);
+
     }
+
+    @Transactional(readOnly = true)
+    public List<ChatMessageDto> loadMessage(Long roomId) {
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(ChatMessageDto.class));
+
+        List<ChatMessageDto> messageList = new ArrayList<>();
+        List<Object> redisMessageList = redisTemplate.opsForList().range(roomId.toString(), 0, 99);
+
+        if (redisMessageList == null || redisMessageList.isEmpty()) {
+            ChatRoom room = chatRoomRepository.findById(roomId)
+                    .orElseThrow(() -> new EntityNotFoundException("ChatRoom not found with id: " + roomId));
+            log.info("db에서 가져오기");
+            List<Message> dbMessageList = messageRepository.findMessagesByChatRoomIdOrderByCreatedAtAsc(roomId);
+
+            for (Message chatMessage : dbMessageList) {
+                ChatMessageDto chatDto = ChatMessageDto.builder()
+                        .chatRoomId(chatMessage.getChatRoom().getChatRoomId())
+                        .senderId(chatMessage.getSender().getId())
+                        .content(chatMessage.getMessage())
+                        .type(chatMessage.getType())
+                        .build();
+                messageList.add(chatDto);
+                redisTemplate.opsForList().rightPush(roomId.toString(), chatDto);
+            }
+        } else {
+            for (Object obj : redisMessageList) {
+                if (obj instanceof ChatMessageDto) {
+                    messageList.add((ChatMessageDto) obj);
+                }
+            }
+        }
+
+        return messageList;
+    }
+
 }
 

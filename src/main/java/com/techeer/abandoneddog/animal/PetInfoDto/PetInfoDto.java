@@ -14,9 +14,8 @@ public class PetInfoDto {
     private String sexCd;
     private String kindCd;
     private String petType;
-    private boolean isPublicApi;
 
-    public PetInfoDto(Long id, Long desertionNo, String filename, String popfile, String processState, String age, String weight, String sexCd, String kindCd, String petType, boolean isPublicApi) {
+    public PetInfoDto(Long id, Long desertionNo, String filename, String popfile, String processState, String age, String weight, String sexCd, String kindCd, String petType) {
         this.id = id;
         this.desertionNo = desertionNo;
         this.filename = filename;
@@ -27,6 +26,5 @@ public class PetInfoDto {
         this.sexCd = sexCd;
         this.kindCd = kindCd;
         this.petType = petType;
-        this.isPublicApi = isPublicApi;
     }
 }

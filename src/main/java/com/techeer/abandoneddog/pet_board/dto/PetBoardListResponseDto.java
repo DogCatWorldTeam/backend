@@ -6,6 +6,7 @@ import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,13 +15,11 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PetBoardListResponseDto {
-    private List<PetBoardResponseDto> petBoards;
+    private Page<PetBoardResponseDto> petBoards;
     private List<BookmarkResponseDto> bookmarks;
 
-    public static PetBoardListResponseDto fromEntities(List<PetBoard> petBoards, List<Bookmark> bookmarks) {
-        List<PetBoardResponseDto> petBoardResponseDtos = petBoards.stream()
-                .map(PetBoardResponseDto::fromEntity)
-                .collect(Collectors.toList());
+    public static PetBoardListResponseDto fromEntities(Page<PetBoard> petBoards, List<Bookmark> bookmarks) {
+        Page<PetBoardResponseDto> petBoardResponseDtos = petBoards.map(PetBoardResponseDto::fromEntity);
         List<BookmarkResponseDto> bookmarkResponseDtos = bookmarks.stream()
                 .map(BookmarkResponseDto::fromEntity)
                 .collect(Collectors.toList());
@@ -28,11 +27,8 @@ public class PetBoardListResponseDto {
         return new PetBoardListResponseDto(petBoardResponseDtos, bookmarkResponseDtos);
     }
 
-    public static PetBoardListResponseDto fromPetBoards(List<PetBoard> petBoards) {
-        List<PetBoardResponseDto> petBoardResponseDtos = petBoards.stream()
-                .map(PetBoardResponseDto::fromEntity)
-                .collect(Collectors.toList());
-
+    public static PetBoardListResponseDto fromPetBoards(Page<PetBoard> petBoards) {
+        Page<PetBoardResponseDto> petBoardResponseDtos = petBoards.map(PetBoardResponseDto::fromEntity);
         return new PetBoardListResponseDto(petBoardResponseDtos, null);
     }
 }

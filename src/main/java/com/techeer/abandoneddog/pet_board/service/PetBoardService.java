@@ -126,14 +126,15 @@ public class PetBoardService {
 //        log.info("Retrieved pet boards: {}", petBoardPage.getContent());
 //        return petBoardPage.map(PetBoardResponseDto::fromEntity);
 //    }
+    @Transactional
     public PetBoardListResponseDto getPetBoards(Pageable pageable, Long userId) {
         Page<PetBoard> petBoards = petBoardRepository.findAll(pageable);
 
         if (userId != null) {
             List<Bookmark> bookmarks = bookmarkRepository.findByUserIdAndIsDeletedFalse(userId);
-            return PetBoardListResponseDto.fromEntities(petBoards.getContent(), bookmarks);
+            return PetBoardListResponseDto.fromEntities(petBoards, bookmarks);
         } else {
-            return PetBoardListResponseDto.fromPetBoards(petBoards.getContent());
+            return PetBoardListResponseDto.fromPetBoards(petBoards);
         }
     }
 

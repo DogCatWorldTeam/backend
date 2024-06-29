@@ -6,6 +6,7 @@ services:
     restart: always
     env_file:
       - ../frontend/abandonedpets/.env
+      - ../frontend/abandonedpets/.env.production
     build:
       context: ../frontend/abandonedpets/
       dockerfile: Dockerfile

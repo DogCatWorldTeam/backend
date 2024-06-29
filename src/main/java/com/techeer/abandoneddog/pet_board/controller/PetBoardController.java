@@ -75,7 +75,12 @@ public class PetBoardController {
             PetBoardListResponseDto petBoardListResponse = petBoardService.getPetBoards(pageable, userId);
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("message", "입양/분양 공고 리스트 조회 성공");
-            response.put("result", petBoardListResponse);
+            response.put("petBoards", petBoardListResponse.getPetBoards().getContent());
+            response.put("totalPages", petBoardListResponse.getPetBoards().getTotalPages());
+
+            if (userId != null) {
+                response.put("bookmarks", petBoardListResponse.getBookmarks());
+            }
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {

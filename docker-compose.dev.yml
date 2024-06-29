@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+  frontend:
+    container_name: frontend
+    restart: always
+    env_file:
+      - ../frontend/abandonedpets/.env
+      - ../frontend/abandonedpets/.env.development
+    build:
+      context: ../frontend/abandonedpets/
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    networks:
+      - team_network
+
+  database:
+    container_name: mysql_db
+    image: mysql:latest
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/conf.d:/etc/mysql/conf.d # MySQL 설정 파일 위치
+      - ./mysql/initdb.d:/docker-entrypoint-initdb.d
+    command:
+      - "mysqld"
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+    networks:
+      - team_network
+
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - team_network
+
+  application:
+    container_name: backend
+    restart: always
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_db:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    depends_on:
+      - database
+      - redis
+    networks:
+      - team_network
+
+networks:
+  team_network:

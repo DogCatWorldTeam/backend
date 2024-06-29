@@ -1,16 +1,10 @@
 package com.techeer.abandoneddog.pet_board.controller;
 
-import com.techeer.abandoneddog.pet_board.dto.PetBoardFilterRequest;
+import com.techeer.abandoneddog.pet_board.dto.PetBoardListResponseDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardRequestDto;
 import com.techeer.abandoneddog.pet_board.dto.PetBoardResponseDto;
-import com.techeer.abandoneddog.pet_board.entity.PetBoard;
 import com.techeer.abandoneddog.pet_board.entity.Status;
 import com.techeer.abandoneddog.pet_board.service.PetBoardService;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +14,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 @RestController
@@ -70,15 +67,15 @@ public class PetBoardController {
     public ResponseEntity<?> getPetBoards(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
-            @RequestParam(defaultValue = "asc") String direction) {
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam(required = false) Long userId) {
         try {
             Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by("petBoardId").descending() : Sort.by("petBoardId").ascending();
             Pageable pageable = PageRequest.of(page, size, sort);
-            Page<PetBoardResponseDto> petBoardPage = petBoardService.getPetBoards(pageable);
+            PetBoardListResponseDto petBoardListResponse = petBoardService.getPetBoards(pageable, userId);
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("message", "입양/분양 공고 리스트 조회 성공");
-            response.put("result", petBoardPage.getContent());
-            response.put("totalPages", petBoardPage.getTotalPages());
+            response.put("result", petBoardListResponse);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -124,10 +121,9 @@ public class PetBoardController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
-        Page<PetBoardResponseDto> result = petBoardService.searchPetBoards(categories, status, minAge, maxAge, title,isYoung, page, size);
+        Page<PetBoardResponseDto> result = petBoardService.searchPetBoards(categories, status, minAge, maxAge, title, isYoung, page, size);
         return ResponseEntity.ok(result);
     }
-
 
 
     @DeleteMapping("/{petBoardId}")

@@ -34,7 +34,7 @@ public class BookmarkController implements BookmarkControllerDocs {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getUserBookmark(@PathVariable("userId")  Long userId, Pageable pageable) {
+    public ResponseEntity<?> getUserBookmark(@PathVariable("userId") Long userId, Pageable pageable) {
         try {
             Page<BookmarkResponseDto> bookmarkPage = bookmarkService.getUserBookmarks(pageable, userId);
             return ResponseEntity.ok(ResultDto.res(HttpStatus.OK, "유저 북마크 리스트 조회 성공", bookmarkPage.getContent()));
@@ -44,8 +44,8 @@ public class BookmarkController implements BookmarkControllerDocs {
         }
     }
 
-    @DeleteMapping("/{bookmarkId}")
-    public ResponseEntity<?> cancelBookmark(@PathVariable("bookmarkId")   Long bookmarkId, @RequestBody BookmarkRequestDto bookmarkRequestDto) {
+    @DeleteMapping
+    public ResponseEntity<?> cancelBookmark(@RequestBody BookmarkRequestDto bookmarkRequestDto) {
         try {
             bookmarkService.cancelBookmark(bookmarkRequestDto);
             return ResponseEntity.ok(ResultDto.res(HttpStatus.OK, "북마크 취소 성공"));

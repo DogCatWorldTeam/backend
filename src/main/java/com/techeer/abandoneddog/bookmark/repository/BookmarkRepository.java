@@ -10,15 +10,18 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
-    @Query("SELECT b FROM Bookmark b " +
-            "JOIN FETCH b.petBoard " +
-            "WHERE b.user.id = :userId AND b.isDeleted = false")
-    Page<Bookmark> findBookmarksByUserIdAndIsDeletedFalse(Pageable pageable,@Param("userId") Long userId);
+    @Query("SELECT b FROM Bookmark b JOIN FETCH b.petBoard WHERE b.user.id = :userId AND b.isDeleted = false")
+    Page<Bookmark> findBookmarksByUserIdAndIsDeletedFalse(Pageable pageable, @Param("userId") Long userId);
 
     boolean existsByPetBoardAndUser(PetBoard petBoard, Users user);
 
     Bookmark findByPetBoardAndUser(PetBoard petBoard, Users users);
+
+    @Query("SELECT b FROM Bookmark b WHERE b.user.id = :userId AND b.isDeleted = false")
+    List<Bookmark> findByUserIdAndIsDeletedFalse(@Param("userId") Long userId);
 
     @Modifying
     @Query("UPDATE Bookmark b SET b.isDeleted=false WHERE b.id= :bookmarkId")

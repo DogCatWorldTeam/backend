@@ -55,8 +55,14 @@ public class PetBoardService {
 			petInfo.setPublicApi(false);
 			petInfo.setPetBoardStored(false);
 
+			Users user = userRepository.findById(petBoardRequestDto.getUserId())
+					.orElseThrow(
+							() -> new EntityNotFoundException("User not found with id: " + petBoardRequestDto.getUserId()));
+
 			Shelter shelter = petInfo.getShelter();
 			if (shelter != null) {
+				String careNm = "[개인보호] " + user.getUsername();
+				shelter.setCareNm(careNm);
 				shelter = shelterRepository.save(shelter);
 			}
 			petInfo.setShelter(shelter);
@@ -64,10 +70,6 @@ public class PetBoardService {
 			//PetInfo savedPetInfo = petInfoRepository.save(petInfo);
 
 			Status status = Status.fromProcessState(petInfo.getProcessState());
-
-			Users user = userRepository.findById(petBoardRequestDto.getUserId())
-				.orElseThrow(
-					() -> new EntityNotFoundException("User not found with id: " + petBoardRequestDto.getUserId()));
 
 			// Save main image to S3 and set as popfile
 			String mainImageUrl = null;

@@ -26,6 +26,13 @@ spring:
     properties:
       hibernate.dialect: org.hibernate.dialect.MySQLDialect
 
+  batch:
+
+    job:
+      enabled: true
+    jdbc:
+      initialize-schema: always
+
   jwt:
     secret: vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbb
 

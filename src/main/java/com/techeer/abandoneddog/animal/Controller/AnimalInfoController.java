@@ -1,5 +1,11 @@
 package com.techeer.abandoneddog.animal.Controller;
 
+
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,10 +44,23 @@ public class AnimalInfoController {
 		}
 	}
 
-	@GetMapping("/update")//test용
-	public void update() {
-		petInfoService.updatePetInfoDaily();
+//	@GetMapping("/update")//test용
+//	public void update() {
+//		petInfoService.updatePetInfoDaily();
+//
+//	}
+@Autowired
+private JobLauncher jobLauncher;
 
+	@Autowired
+	private Job importUserJob;
+
+	@GetMapping("/launchjob")
+	public String handle() throws Exception {
+		JobParameters jobParameters = new JobParametersBuilder()
+				.addLong("time", System.currentTimeMillis()).toJobParameters();
+		jobLauncher.run(importUserJob, jobParameters);
+		return "Batch job has been invoked";
 	}
 
 	@GetMapping("/{id}")

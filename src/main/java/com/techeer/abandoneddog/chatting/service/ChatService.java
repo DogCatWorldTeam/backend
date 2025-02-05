@@ -275,6 +275,7 @@ public class ChatService {
 				messageList.add(chatDto);
 				redisTemplate.opsForList().rightPush(roomId.toString(), chatDto);
 			}
+			redisTemplate.expire(roomId.toString(), 1, TimeUnit.MINUTES);
 		} else {
 			for (Object obj : redisMessageList) {
 				if (obj instanceof ChatMessageDto) {
